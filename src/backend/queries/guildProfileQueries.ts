@@ -1,5 +1,5 @@
 import { Ref } from '@typegoose/typegoose';
-import { UpdateWriteOpResult } from 'mongoose';
+import { Cursor, QueryOptions, UpdateWriteOpResult } from 'mongoose';
 import { GuildProfileDocument } from '../../types/customDocument.js';
 import { GuildProfile, GuildProfileModel, Schedule, Settings, Stats, TimeAndSoul } from '../schemas/GuildProfile.js';
 import { Soul } from '../../util/souls.js';
@@ -32,6 +32,10 @@ export const getGuildProfile = async (guildId: string): Promise<GuildProfileDocu
 
 export const getGuildProfileById = async (id: Ref<GuildProfile> | string): Promise<GuildProfileDocument | null> => {
     return GuildProfileModel.findById(id);
+};
+
+export const getAllGuildProfilesStream = async (): Promise<Cursor<GuildProfileDocument, QueryOptions<GuildProfileDocument>>> => {
+    return GuildProfileModel.find().cursor();
 };
 
 // UPDATE / PUT
