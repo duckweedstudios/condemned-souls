@@ -1,6 +1,6 @@
 const config = {
     'featureFlags': {
-        'privacyMode': false,
+        'privacyMode': true,
     },
     'claimWindowSeconds': 20,
 };
