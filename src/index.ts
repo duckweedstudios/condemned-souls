@@ -8,6 +8,7 @@ import { prepareCommands } from './util/commandHandler.js';
 import { prepareEvents } from './util/eventHandler.js';
 import { prepareButtons } from './util/buttonHandler.js';
 import config from './config.js';
+import { regenerateMissedHauntings } from './util/hauntDrivers.js';
 console.log(generateDependencyReport());
 
 
@@ -44,5 +45,5 @@ client.login(process.env.DISCORD_TOKEN);
 
 client.on('ready', () => {
     // Regenerate missed or otherwise invalid hauntings
-    // regenerateMissedHauntings(client);
+    regenerateMissedHauntings();
 });

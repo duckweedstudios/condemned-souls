@@ -91,6 +91,6 @@ export const hauntSomeChannelWithSoul = async (guildId: string, soul: Soul): Pro
             } catch (err) {
                 console.error(err);
             }
-        }, config.claimWindowSeconds * 1000);
+        }, (config.claimWindowSeconds + 1) * 1000);
     }
 };

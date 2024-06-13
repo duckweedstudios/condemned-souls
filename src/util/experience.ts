@@ -12,7 +12,7 @@ const soulTiers = [
     { level: 0, xp: 0, tierName: 'Fresh Soul Fetcher', tierColor: '#FFFFFF', tierQuote: '' },
     { level: 1, xp: 1, tierName: 'Newbie Soul Fetcher', tierColor: '#FFFFFF', tierQuote: '' },
     { level: 2, xp: 5, tierName: 'Rookie Soul Fetcher', tierColor: '#FFFFFF', tierQuote: '' },
-    { level: 3, xp: 9, tierName: 'Apprentince Soul Fetcher', tierColor: '#FFFFFF', tierQuote: '' },
+    { level: 3, xp: 9, tierName: 'Apprentice Soul Fetcher', tierColor: '#FFFFFF', tierQuote: '' },
     { level: 4, xp: 13, tierName: 'Babbling Soul Fetcher', tierColor: '#FFFFFF', tierQuote: 'Aren\'t I lucky, to have survived so much bad luck.' },
     { level: 5, xp: 25, tierName: 'Trained Soul Fetcher', tierColor: '#FFFFFF', tierQuote: '' },
     { level: 6, xp: 40, tierName: 'Journeyman Soul Fetcher', tierColor: '#FFFFFF', tierQuote: '' },
@@ -102,7 +102,7 @@ export const getSoulTier = (xp: number): SoulTier => {
 };
 
 export const getXPBar = (xp: number) => {
-    const soulTier = module.exports.getSoulTier(xp);
+    const soulTier = getSoulTier(xp);
     const nextSoulTier = soulTiers[soulTiers.indexOf(soulTier) + 1];
     const xpInTier = xp - soulTier.xp;
     const xpToNextTier = nextSoulTier.xp - soulTier.xp;

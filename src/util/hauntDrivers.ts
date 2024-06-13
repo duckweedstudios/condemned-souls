@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import { Snowflake } from 'discord.js';
-import { GameCacheServiceLocator } from '../caching/GameCacheServiceLocator';
+import { GameCacheServiceLocator } from '../caching/GameCacheServiceLocator.js';
 import { getSoulByIdOrDefault, getWeightedRandomSoulType } from './souls.js';
 import { getRandomizedNextTimeInFuture } from './time.js';
-import { getAllGuildProfilesStream, getGuildProfile, scheduleNextHaunt } from '../backend/queries/guildProfileQueries';
-import { TimeAndSoul } from '../backend/schemas/GuildProfile';
-import { GuildProfileDocument } from '../types/customDocument';
-import { hauntSomeChannelWithSoul } from './hauntings';
+import { getAllGuildProfilesStream, getGuildProfile, scheduleNextHaunt } from '../backend/queries/guildProfileQueries.js';
+import { TimeAndSoul } from '../backend/schemas/GuildProfile.js';
+import { GuildProfileDocument } from '../types/customDocument.js';
+import { hauntSomeChannelWithSoul } from './hauntings.js';
 
 export const guildHauntDriver = async (guildId: Snowflake, fasterFirstHaunting = false, replaceExistingNextOnly = false) => {
     // Given a guild, decide a randomized next time to haunt it,
@@ -62,7 +62,7 @@ export const regenerateMissedHauntings = async () => {
             guildHauntDriver(doc.guildId, false, true);
         } else {
             console.log(`DEBUG: The server ${doc.guildId} will have haunting regenerated for ${nextAppearance.format('MM/DD/YYYY hh:mm:ss A')}`);
-            const upcomingSoulType = getSoulByIdOrDefault(doc.guildId, doc.schedule.next.soul.id);
+            const upcomingSoulType = getSoulByIdOrDefault(doc.schedule.next.soul.id, doc.guildId);
             scheduleHaunting(doc.guildId, { time: nextAppearance.toDate(), soul: upcomingSoulType } as TimeAndSoul, true);
         }
     }, { continueOnError: true });

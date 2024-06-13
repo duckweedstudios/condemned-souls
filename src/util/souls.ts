@@ -27,9 +27,9 @@ export const getDefaultSoul = (): Soul => {
 
 export const getWeightedRandomSoulType = (guildId: Snowflake): Soul => {
     const soulsFileContents = getSoulTypesJSON(guildId);
-    if (!soulsFileContents) {
+    if (soulsFileContents.length === 0) {
         // No souls exist on the server. Play a default sound.
-        return module.exports.getDefaultSoul();
+        return getDefaultSoul();
     } else {
         const soulRaritySum = soulsFileContents.reduce((prev, curr) => prev + (1 / curr.rarity), 0);
         const randomNumber = Math.random() * soulRaritySum; // floats on [0, soulRaritySum)
@@ -41,21 +41,21 @@ export const getWeightedRandomSoulType = (guildId: Snowflake): Soul => {
                 runningSum += 1 / soulType.rarity;
             }
         }
-        throw new Error(`Error in hauntSomeChannelWithRandomSound: No soul type was chosen. Tried ${randomNumber} of ${soulRaritySum}`);
+        throw new Error(`Error in getWeightedRandomSoulType: No soul type was chosen. Tried ${randomNumber} of ${soulRaritySum}`);
     }
 };
 
 export const getAudioResourceFromSoul = (soul: Soul, guildId: Snowflake) => {
     try {
         if (soul.global) {
-            const pathOfFileToPlay = path.join(__dirname, `../resources/global/${soul.name}.${soul.extension}`);
+            const pathOfFileToPlay = path.join(process.cwd(), `./resources/global/${soul.name}.${soul.extension}`);
             return createAudioResource(pathOfFileToPlay, {
                 metadata: {
                     title: `${soul.name} <default sound>`,
                 },
             });
         } else {
-            const pathOfFileToPlay = path.join(__dirname, `../resources/guilds/${guildId}/${soul.name}.${soul.extension}`);
+            const pathOfFileToPlay = path.join(process.cwd(), `./resources/guilds/${guildId}/${soul.name}.${soul.extension}`);
             return createAudioResource(pathOfFileToPlay, {
                 metadata: {
                     title: soul.name,
@@ -63,13 +63,13 @@ export const getAudioResourceFromSoul = (soul: Soul, guildId: Snowflake) => {
             });
         }
     } catch (err) {
-        throw new Error(`Error in getAudioResourceFromSoul: Soul ${soul} gave error ${err}`);
+        throw new Error(`Error in getAudioResourceFromSoul: Soul ${soul.name} gave error ${err}`);
     }
 };
 
 export const getSoulTypesJSON = (guildId: Snowflake): Soul[] => {
     try {
-        const soulsFilePath = path.join(__dirname, `../resources/guilds/${guildId}/souls.json`);
+        const soulsFilePath = path.join(process.cwd(), `../resources/guilds/${guildId}/souls.json`);
         const soulsFileContents = JSON.parse(fs.readFileSync(soulsFilePath).toString());
         return soulsFileContents.souls;
     } catch (err) {
