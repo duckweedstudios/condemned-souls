@@ -43,7 +43,7 @@ export const scheduleNextHaunt = async (guildId: string, nextHaunt: TimeAndSoul,
     if (replaceExistingNextOnly) {
         return GuildProfileModel.updateOne({ guildId }, { $set: { 'schedule.next': nextHaunt } }).exec();
     } else {
-        return GuildProfileModel.updateOne({ guildId }, { $set: { 'schedule.past': '$schedule.next', 'schedule.next': nextHaunt } }).exec();
+        return GuildProfileModel.updateOne({ guildId }, [{ $set: { 'schedule.past': '$schedule.next', 'schedule.next': nextHaunt } }]).exec();
     }
 };
 

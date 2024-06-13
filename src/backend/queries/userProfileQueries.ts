@@ -8,6 +8,15 @@ export const createUserProfile = async (guildId: string, userId: string): Promis
     return UserProfileModel.create({
         guildId,
         userId,
+        souls: 0,
+        soulsCaught: 0,
+        careerSoulsCaught: 0,
+        fetchCount: 0,
+        condemnedCount: 0,
+        lifetimeXP: 0,
+        wasFooledCount: 0,
+        fooledAnotherCount: 0,
+        allowLure: true,
     });
 };
 
