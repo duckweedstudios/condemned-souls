@@ -1,5 +1,5 @@
 import { GameCacheService } from './GameCacheService.js';
-import { InMemoryGameCacheService } from './InMemoryGameCacheService';
+import { InMemoryGameCacheService } from './InMemoryGameCacheService.js';
 
 export class GameCacheServiceLocator {
     private static service: GameCacheService;
