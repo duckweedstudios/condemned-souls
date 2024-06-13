@@ -5,7 +5,7 @@ import { Soul, getSoulValue } from '../../util/souls.js';
 import { getLevelUps, getXPBar } from '../../util/experience.js';
 import { ValueOf } from 'discord-rendezvous/dist/types/typelogic.js';
 import { getGuildProfile } from '../../backend/queries/guildProfileQueries.js';
-import { addCareerSoulsCaught, addFetchCount, addFooledAnotherCount, addLifetimeXP, addSouls, addSoulsCaught, addWasFooledCount, getOrCreateUserProfile, getUserProfile } from '../../backend/queries/userProfileQueries.js';
+import { addCareerSoulsCaught, addFetchCount, addFooledAnotherCount, addLifetimeXP, addSouls, addSoulsCaught, addWasFooledCount, getOrCreateUserProfile } from '../../backend/queries/userProfileQueries.js';
 import { GameCacheServiceLocator } from '../../caching/GameCacheServiceLocator.js';
 import config from '../../config.js';
 import { TimeAndSoul } from '../../backend/schemas/GuildProfile.js';
@@ -90,7 +90,7 @@ const fetchSolver = async (params: FetchSolverParams): Promise<FetchOutcome> => 
         const gameService = GameCacheServiceLocator.getService();
         // Check if a summoned soul was recent enough (i.e. they were fooled)
         const lastSummonTime = gameService.getLastSummonTime(params.guildId);
-        if (Math.abs(currentTimestamp.diff(lastSummonTime, 'second')) < config.claimWindowSeconds) {
+        if (lastSummonTime && currentTimestamp.diff(lastSummonTime, 'second') < config.claimWindowSeconds) {
             addWasFooledCount(params.guildId, params.userId);
             addFooledAnotherCount(params.guildId, guildProfileDocument!.condemnedMemberId);
             return {
@@ -103,7 +103,8 @@ const fetchSolver = async (params: FetchSolverParams): Promise<FetchOutcome> => 
         }
 
         // Check if a haunting wasn't recent enough
-        if (!guildProfileDocument!.schedule.past || Math.abs(currentTimestamp.diff(guildProfileDocument!.schedule.past?.time, 'second')) > config.claimWindowSeconds) return {
+        const secondsUntilHaunting = currentTimestamp.diff(guildProfileDocument!.schedule.past?.time, 'second');
+        if (!guildProfileDocument!.schedule.past || secondsUntilHaunting > config.claimWindowSeconds) return {
             status: FetchSpecificStatus.FAIL_NO_HAUNT,
             body: {
                 lastHaunt: guildProfileDocument!.schedule.past,
@@ -120,13 +121,13 @@ const fetchSolver = async (params: FetchSolverParams): Promise<FetchOutcome> => 
         };
 
         // The fetch was successful
-        const condemnedUserProfileDocument = getUserProfile(params.guildId, guildProfileDocument!.condemnedMemberId);
+        const condemnedUserProfileDocument = getOrCreateUserProfile(params.guildId, guildProfileDocument!.condemnedMemberId);
         const soulValue = getSoulValue(guildProfileDocument!.schedule.past.soul);
         gameService.addMembersWhoFetched(params.guildId, params.userId);
         // Apply multipliers
         const multiplierMessages = [];
         let earnedXPMultiplier = 1;
-        if (membersWhoFetched?.length === 0) {
+        if (membersWhoFetched?.length === 1) {
             multiplierMessages.push('🕐 **First fetch!** *x2 XP*');
             earnedXPMultiplier *= 2;
         }
@@ -197,7 +198,7 @@ const fetchSlashCommandValidator = async (interaction: LimitedCommandInteraction
             {
                 category: OptionValidationErrorStatus.INSUFFICIENT_PERMISSIONS,
                 func: async function(metadata: ValueOf<LimitedCommandInteraction>): Promise<boolean> {
-                    return metadata === (await guildProfileDocument)?.condemnedMemberId;
+                    return metadata !== (await guildProfileDocument)!.condemnedMemberId;
                 },
             },
         ]],
@@ -233,7 +234,7 @@ const formatFetchSuccessDetailsOutcome = (oBody: FetchSuccessDetailsOutcomeBody)
     for (const mult of oBody.experience.multipliers) {
         userMessage += `\n${mult}`;
     }
-    userMessage += `\n= **__+${oBody.experience.sum} XP__**\n\n`;
+    userMessage += `\n= **__${oBody.experience.sum} XP__**\n\n`;
     const levelUps = getLevelUps(oBody.experience.oldXP, oBody.experience.oldXP + oBody.experience.sum);
     userMessage += `${levelUps}\n${getXPBar(oBody.experience.oldXP + oBody.experience.sum)}${oBody.specialMessages ? '\n' : ''}`;
     for (const msg of oBody.specialMessages) {
