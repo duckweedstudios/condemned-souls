@@ -101,9 +101,15 @@ export const getSoulTier = (xp: number): SoulTier => {
     return soulTiers[0];
 };
 
-export const getXPBar = (xp: number) => {
-    const soulTier = getSoulTier(xp);
-    const nextSoulTier = soulTiers[soulTiers.indexOf(soulTier) + 1];
+export const getLevelUpProgressFraction = (xp: number, knownSoulTiers?: { current: SoulTier, next: SoulTier }) => {
+    const soulTier = knownSoulTiers?.current ?? getSoulTier(xp);
+    const nextSoulTier = knownSoulTiers?.next ?? soulTiers[soulTiers.indexOf(soulTier) + 1];
+    return `(${xp}/${nextSoulTier.xp} XP)`;
+};
+
+export const getXPBar = (xp: number, knownSoulTiers?: { current: SoulTier, next: SoulTier }) => {
+    const soulTier = knownSoulTiers?.current ?? getSoulTier(xp);
+    const nextSoulTier = knownSoulTiers?.next ?? soulTiers[soulTiers.indexOf(soulTier) + 1];
     const xpInTier = xp - soulTier.xp;
     const xpToNextTier = nextSoulTier.xp - soulTier.xp;
     const xpPercentage = xpInTier / xpToNextTier;
@@ -116,7 +122,13 @@ export const getXPBar = (xp: number) => {
         }
     }
     xpBar += ']';
-    return `${soulTier.tierName} ${xpBar} ${nextSoulTier.tierName} *(${xp}/${nextSoulTier.xp} XP)*`;
+    return xpBar;
+};
+
+export const getDetailedXPBar = (xp: number) => {
+    const soulTier = getSoulTier(xp);
+    const nextSoulTier = soulTiers[soulTiers.indexOf(soulTier) + 1];
+    return `${soulTier.tierName} ${getXPBar(xp, { current: soulTier, next: nextSoulTier })} ${nextSoulTier.tierName} *${getLevelUpProgressFraction(xp, { current: soulTier, next: nextSoulTier })}*`;
 };
 
 export const getLevelUps = (oldXP: number, newXP: number) => {

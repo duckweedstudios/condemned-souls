@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from 'discord.js';
 import dayjs from 'dayjs';
 import { ALWAYS_OPTION_CONSTRAINT, Constraint, LimitedCommandInteraction, LimitedCommandInteractionOption, OptionValidationError, OptionValidationErrorOutcome, OptionValidationErrorStatus, Outcome, OutcomeStatus, SimpleRendezvousSlashCommand, SlashCommandDescribedOutcome, validateConstraints } from 'discord-rendezvous';
 import { Soul, getSoulValue } from '../../util/souls.js';
-import { getLevelUps, getXPBar } from '../../util/experience.js';
+import { getDetailedXPBar, getLevelUps } from '../../util/experience.js';
 import { ValueOf } from 'discord-rendezvous/dist/types/typelogic.js';
 import { getGuildProfile } from '../../backend/queries/guildProfileQueries.js';
 import { addCareerSoulsCaught, addFetchCount, addFooledAnotherCount, addLifetimeXP, addSouls, addSoulsCaught, addWasFooledCount, getOrCreateUserProfile } from '../../backend/queries/userProfileQueries.js';
@@ -236,7 +236,7 @@ const formatFetchSuccessDetailsOutcome = (oBody: FetchSuccessDetailsOutcomeBody)
     }
     userMessage += `\n= **__${oBody.experience.sum} XP__**\n\n`;
     const levelUps = getLevelUps(oBody.experience.oldXP, oBody.experience.oldXP + oBody.experience.sum);
-    userMessage += `${levelUps}\n${getXPBar(oBody.experience.oldXP + oBody.experience.sum)}${oBody.specialMessages ? '\n' : ''}`;
+    userMessage += `${levelUps}\n${getDetailedXPBar(oBody.experience.oldXP + oBody.experience.sum)}${oBody.specialMessages ? '\n' : ''}`;
     for (const msg of oBody.specialMessages) {
         userMessage += `\n${msg}`;
     }
